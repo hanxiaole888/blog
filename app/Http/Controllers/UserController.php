@@ -118,8 +118,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
         //
+	    $this->authorize('delete',$user);
+		$user->delete();
+		session()->flash('success','删除成功');
+		return redirect()->route('user.index');
     }
 }

@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
 	    $user->name = '韩小乐';
 	    $user->email = '321863396@qq.com';
 	    $user->password = bcrypt('admin888');
+	    $user->is_admin = 1;
 	    $user->save();
 	    $user = \App\User::find(2);
 	    $user->name = '崔甜甜';

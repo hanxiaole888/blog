@@ -13,6 +13,7 @@
                     <label for="">密码</label>
                     <input type="password" class="form-control" name="password">
                 </div>
+                <a href="{{route('FindPasswordEmail')}}">找回密码</a>
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-success">登录</button>

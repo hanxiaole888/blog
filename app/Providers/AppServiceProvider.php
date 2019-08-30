@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\User;
+use App\Observer\UserObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         //
 	    \Schema::defaultStringLength(191);
+		User::observe(UserObserver::class);
     }
 }

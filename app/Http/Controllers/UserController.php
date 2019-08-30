@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\Mail\RegMail;
 class UserController extends Controller
 {
 	public function __construct()
 	{
 		//未登录状态限制
 		$this->middleware('auth',[
-			'except'=>['index','show','create','store'] //这边是忽略文件
+			'except'=>['index','show','create','store','confirmEmailtoken'] //这边是忽略文件
 		]);
 		//登录状态限制
 		$this->middleware('guest',[
@@ -56,9 +57,9 @@ class UserController extends Controller
 	    ]);
 	    $data['password'] = bcrypt($data['password']);
 	    //添加用户
-	    User::create($data);
-	    //自动登录
-	    \Auth::attempt(['email'=>$request->email,'password'=>$request->password,'name'=>$request->name]);
+	    $user = User::create($data);
+	    \Mail::to($user)->send(new RegMail($user));
+	    session()->flash('success','请在邮箱验证信息');
 	    return redirect()->route('home');
     }
 
@@ -71,7 +72,8 @@ class UserController extends Controller
     public function show(User $user)
     {
         //
-	    return view('user.show',compact('user'));
+	    $blogs = $user->blogs()->paginate(10);
+	    return view('user.show',compact('user','blogs'));
     }
 
     /**
@@ -82,7 +84,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        //模型攻略
 	    $this->authorize('update',$user);
 
 	    return view('user.edit',compact('user'));
@@ -125,5 +127,19 @@ class UserController extends Controller
 		$user->delete();
 		session()->flash('success','删除成功');
 		return redirect()->route('user.index');
+    }
+
+    public function confirmEmailtoken($token){
+		$user = User::where('email_token',$token)->first();
+		if($user){
+			$user->email_active = true;
+			$user->save();
+			//自动登录
+			\Auth::login($user);
+			session()->flash('success','登录成功！');
+			return redirect('/');
+		}
+	    session()->flash('danger','邮箱验证失败！');
+	    return redirect('/');
     }
 }
